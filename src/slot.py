@@ -5,6 +5,7 @@ from requests.exceptions import HTTPError
 import logging
 from bs4 import BeautifulSoup
 import datetime
+import sys
 
 BASE_SHEET_URL = 'https://www.slottr.com/sheets/18257847'
 
@@ -15,7 +16,9 @@ DESIRED_SIGNUP_HOUR = 11
 
 # TODO: Make sure we're not trying to signup more than 48 hours in advance. Is this actually checked?
 
+#
 # Step 1: Download the initial list of available slots
+#
 
 soup = None
 
@@ -29,9 +32,12 @@ try:
     soup = BeautifulSoup(response.text, 'html.parser')
 
 except HTTPError as http_err:
-    print(f'Encountered HTTP error: {http_err}')
+    print(f'Encountered HTTP error trying to retrieve initial list of available slots: {http_err}')
+    sys.exit(1)
 
+#
 # Step 2: Get CSRF token
+#
 
 csrf_param = None
 csrf_token = None
@@ -42,10 +48,13 @@ try:
 
 except AttributeError as attr_err:
     print(f'Could not find CSRF info in initial sheet')
+    sys.exit(1)
 
 print(f'Found CSRF param name "{csrf_param}" and token "{csrf_token}"')
 
+#
 # Step 3: Get the time range for the desired slot
+#
 
 time_range = None
 
@@ -76,5 +85,11 @@ try:
 
 except AttributeError as attr_err:
     print(f'Could not find a signup for date {desired_date_formatted}')
+    sys.exit(1)
 
 print(f"Found time range: '{time_range}' for our desired date")
+
+#
+# Step 4: Make a request to fill the slot
+#
+
