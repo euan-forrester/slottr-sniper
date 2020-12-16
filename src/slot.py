@@ -27,7 +27,6 @@ session = requests.Session()
 #
 
 soup = None
-cookies = None
 
 try:
     response = session.get(BASE_SHEET_URL)
@@ -111,7 +110,7 @@ post_data = {
 }
 
 try:
-    response = session.post(post_url, data=post_data, cookies=cookies)
+    response = session.post(post_url, data=post_data)
 
     response.raise_for_status()
 
