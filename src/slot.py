@@ -13,6 +13,10 @@ DESIRED_SIGNUP_YEAR = 2020
 DESIRED_SIGNUP_MONTH = 12
 DESIRED_SIGNUP_DAY = 30
 DESIRED_SIGNUP_HOUR = 11
+DESIRED_SIGNUP_NAME = 'Euan test from script'
+DESIRED_SIGNUP_EMAIL = 'a@b.com'
+DESIRED_SIGNUP_PHONE = '1234567890'
+DESIRED_SIGNUP_NOTES = 'Made from script! Yay!'
 
 # TODO: Make sure we're not trying to signup more than 48 hours in advance. Is this actually checked?
 
@@ -93,3 +97,27 @@ print(f"Found time range: '{time_range}' for our desired date")
 # Step 4: Make a request to fill the slot
 #
 
+post_data = {
+    csrf_param: csrf_token,
+    'result': {
+        'name': DESIRED_SIGNUP_NAME,
+        'emails': [ DESIRED_SIGNUP_EMAIL ],
+        'phone': DESIRED_SIGNUP_PHONE,
+        'notes': DESIRED_SIGNUP_NOTES
+    }
+}
+
+try:
+    response = requests.post(f'{BASE_SHEET_URL}/ranges/{time_range}/entry_results', data=post_data)
+
+    response.raise_for_status()
+
+    response.encoding = 'utf-8'
+
+    print(f'Received HTTP response {response.status}')
+
+except HTTPError as http_err:
+    print(f'Encountered HTTP error trying to post request for a slot: {http_err}')
+    sys.exit(1)
+
+print('Success!')
