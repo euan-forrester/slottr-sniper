@@ -1,0 +1,31 @@
+[DEFAULT]
+
+[dev]
+
+slottr-url=https://www.slottr.com/sheets/1234567
+signup-name=Dev name
+signup-email=a@b.com
+signup-phone=1234567890
+signup-condo=123
+signup-building-initial=AB
+signup-notes=This signup done from script!
+
+desired-year=2020
+desired-month=12
+desired-day=30
+desired-hour=11
+
+[prod]
+
+slottr-url=https://www.slottr.com/sheets/1234567
+signup-name=Prod name
+signup-email=a@b.com
+signup-phone=1234567890
+signup-condo=123
+signup-building-initial=AB
+signup-notes=
+
+desired-year=2020
+desired-month=12
+desired-day=30
+desired-hour=11

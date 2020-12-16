@@ -6,19 +6,44 @@ import logging
 from bs4 import BeautifulSoup
 import datetime
 import sys
+import configparser
+import os
 
-BASE_SHEET_URL = 'https://www.slottr.com/sheets/18257877'
-
-DESIRED_SIGNUP_YEAR = 2021
-DESIRED_SIGNUP_MONTH = 1
-DESIRED_SIGNUP_DAY = 1
-DESIRED_SIGNUP_HOUR = 11
-DESIRED_SIGNUP_NAME = 'Euan test from script'
-DESIRED_SIGNUP_EMAIL = 'a@b.com'
-DESIRED_SIGNUP_PHONE = '1234567890'
-DESIRED_SIGNUP_NOTES = 'Made from script! Yay!'
+CONFIG_FILE = '../config/config.ini'
 
 # TODO: Make sure we're not trying to signup more than 48 hours in advance. Is this actually checked?
+
+#
+# Get our config
+#
+
+environment = 'dev'
+
+if 'ENVIRONMENT' in os.environ:
+    environment = os.environ.get('ENVIRONMENT')
+
+print(f'Running in {environment} mode')
+
+config = configparser.ConfigParser()
+
+config.read(CONFIG_FILE)
+
+desired_slottr_url = config.get(environment, 'slottr-url')
+desired_signup_name = config.get(environment, 'signup-name')
+desired_signup_email = config.get(environment, 'signup-email')
+desired_signup_phone = config.get(environment, 'signup-phone')
+desired_signup_condo = config.get(environment, 'signup-condo')
+desired_signup_building = config.get(environment, 'signup-building-initial')
+desired_signup_notes = config.get(environment, 'signup-notes')
+
+desired_signup_year = config.getint(environment, 'desired-year')
+desired_signup_month = config.getint(environment, 'desired-month')
+desired_signup_day = config.getint(environment, 'desired-day')
+desired_signup_hour = config.getint(environment, 'desired-hour')
+
+#
+# Now get info from Slottr
+#
 
 session = requests.Session()
 
@@ -29,7 +54,7 @@ session = requests.Session()
 soup = None
 
 try:
-    response = session.get(BASE_SHEET_URL)
+    response = session.get(desired_slottr_url)
 
     response.raise_for_status()
 
@@ -64,7 +89,7 @@ print(f'Found CSRF param name "{csrf_param}" and token "{csrf_token}"')
 
 time_range = None
 
-desired_date = datetime.datetime(DESIRED_SIGNUP_YEAR, DESIRED_SIGNUP_MONTH, DESIRED_SIGNUP_DAY, DESIRED_SIGNUP_HOUR)
+desired_date = datetime.datetime(desired_signup_year, desired_signup_month, desired_signup_day, desired_signup_hour)
 
 desired_date_formatted = f'{desired_date: %a, %b %d @ %I:00 %p}'.lstrip().replace(" 0", "  ") # https://stackoverflow.com/questions/9525944/python-datetime-formatting-without-zero-padding
 
@@ -98,14 +123,14 @@ print(f"Found time range: '{time_range}' for our desired date")
 # Step 4: Make a request to fill the slot
 #
 
-post_url = f'{BASE_SHEET_URL}/entries/{time_range}/results'
+post_url = f'{desired_slottr_url}/entries/{time_range}/results'
 
 post_data = {
     csrf_param: csrf_token,
-    'result[name]': DESIRED_SIGNUP_NAME,
-    'result[emails][]': DESIRED_SIGNUP_EMAIL,
-    'result[phone]': DESIRED_SIGNUP_PHONE,
-    'result[notes]': DESIRED_SIGNUP_NOTES
+    'result[name]': desired_signup_name,
+    'result[emails][]': desired_signup_email,
+    'result[phone]': desired_signup_phone,
+    'result[notes]': desired_signup_notes
 }
 
 try:
