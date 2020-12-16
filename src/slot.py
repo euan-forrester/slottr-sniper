@@ -9,9 +9,9 @@ import sys
 
 BASE_SHEET_URL = 'https://www.slottr.com/sheets/18257877'
 
-DESIRED_SIGNUP_YEAR = 2020
-DESIRED_SIGNUP_MONTH = 12
-DESIRED_SIGNUP_DAY = 30
+DESIRED_SIGNUP_YEAR = 2021
+DESIRED_SIGNUP_MONTH = 1
+DESIRED_SIGNUP_DAY = 1
 DESIRED_SIGNUP_HOUR = 11
 DESIRED_SIGNUP_NAME = 'Euan test from script'
 DESIRED_SIGNUP_EMAIL = 'a@b.com'
@@ -66,7 +66,6 @@ time_range = None
 
 desired_date = datetime.datetime(DESIRED_SIGNUP_YEAR, DESIRED_SIGNUP_MONTH, DESIRED_SIGNUP_DAY, DESIRED_SIGNUP_HOUR)
 
-# TODO: Are single-digit month numbers padded with spaces as well?
 desired_date_formatted = f'{desired_date: %a, %b %d @ %I:00 %p}'.lstrip().replace(" 0", "  ") # https://stackoverflow.com/questions/9525944/python-datetime-formatting-without-zero-padding
 
 print(f'Trying to find desired date "{desired_date_formatted}"')
