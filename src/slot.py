@@ -91,7 +91,7 @@ time_range = None
 
 desired_date = datetime.datetime(desired_signup_year, desired_signup_month, desired_signup_day, desired_signup_hour)
 
-desired_date_formatted = f'{desired_date: %a, %b %d @ %I:00 %p}'.lstrip().replace(" 0", "  ") # https://stackoverflow.com/questions/9525944/python-datetime-formatting-without-zero-padding
+desired_date_formatted = f'{desired_date: %a, %b %d @ %I:00 %p}'.lstrip().replace(" 0", "  ") # The hour needs to be padded with a space (e.g. " 9:00" and not "09:00"). https://stackoverflow.com/questions/9525944/python-datetime-formatting-without-zero-padding
 
 print(f'Trying to find desired date "{desired_date_formatted}"')
 
@@ -130,6 +130,8 @@ post_data = {
     'result[name]': desired_signup_name,
     'result[emails][]': desired_signup_email,
     'result[phone]': desired_signup_phone,
+    'result[questions][117]': desired_signup_condo,
+    'result[questions][122]': desired_signup_building,
     'result[notes]': desired_signup_notes
 }
 
