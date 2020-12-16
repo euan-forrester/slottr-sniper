@@ -8,7 +8,7 @@ import datetime
 import sys
 from urllib.parse import urlparse
 
-BASE_SHEET_URL = 'https://www.slottr.com/sheets/18257847'
+BASE_SHEET_URL = 'https://www.slottr.com/sheets/18257877'
 
 DESIRED_SIGNUP_YEAR = 2020
 DESIRED_SIGNUP_MONTH = 12
@@ -21,14 +21,17 @@ DESIRED_SIGNUP_NOTES = 'Made from script! Yay!'
 
 # TODO: Make sure we're not trying to signup more than 48 hours in advance. Is this actually checked?
 
+session = requests.Session()
+
 #
 # Step 1: Download the initial list of available slots
 #
 
 soup = None
+cookies = None
 
 try:
-    response = requests.get(BASE_SHEET_URL)
+    response = session.get(BASE_SHEET_URL)
 
     response.raise_for_status()
 
@@ -89,7 +92,7 @@ try:
     time_range = desired_date_node.parent.parent.parent.find('a').get('href').split('/')[4]
 
 except AttributeError as attr_err:
-    print(f'Could not find a signup for date {desired_date_formatted}')
+    print(f'Could not find a signup for date "{desired_date_formatted}"')
     sys.exit(1)
 
 print(f"Found time range: '{time_range}' for our desired date")
@@ -98,18 +101,16 @@ print(f"Found time range: '{time_range}' for our desired date")
 # Step 4: Make a request to fill the slot
 #
 
-post_url = f'{BASE_SHEET_URL}/ranges/{time_range}/entry_results'
+post_url = f'{BASE_SHEET_URL}/entries/{time_range}/results'
 
 parsed_post_url = urlparse(post_url)
 
 post_data = {
     csrf_param: csrf_token,
-    'result': {
-        'name': DESIRED_SIGNUP_NAME,
-        'emails': [ DESIRED_SIGNUP_EMAIL ],
-        'phone': DESIRED_SIGNUP_PHONE,
-        'notes': DESIRED_SIGNUP_NOTES
-    }
+    'result[name]': DESIRED_SIGNUP_NAME,
+    'result[emails][]': DESIRED_SIGNUP_EMAIL,
+    'result[phone]': DESIRED_SIGNUP_PHONE,
+    'result[notes]': DESIRED_SIGNUP_NOTES
 }
 
 post_headers = {
@@ -121,7 +122,7 @@ post_headers = {
 #    'Content-Length': '242',
     'Content-Type': 'application/x-www-form-urlencoded',
     'Host': parsed_post_url.hostname,
-    'Origin': f'origin: {parsed_post_url.scheme}://{parsed_post_url.hostname}',
+    'Origin': f'{parsed_post_url.scheme}://{parsed_post_url.hostname}',
     'Referer': f'{post_url}/new',
     'Sec-Fetch-Dest': 'document',
     'Sec-Fetch-Mode': 'navigate',
@@ -132,13 +133,13 @@ post_headers = {
 }
 
 try:
-    response = requests.post(post_url, data=post_data, headers=post_headers)
+    response = session.post(post_url, data=post_data, headers=post_headers, cookies=cookies)
 
     response.raise_for_status()
 
     response.encoding = 'utf-8'
 
-    print(f'Received HTTP response {response.status}')
+    print(f'Received HTTP response {response.status_code}')
 
 except HTTPError as http_err:
     print(f'Encountered HTTP error trying to post request for a slot: {http_err}')
