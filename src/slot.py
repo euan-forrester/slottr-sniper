@@ -6,6 +6,7 @@ import logging
 from bs4 import BeautifulSoup
 import datetime
 import sys
+from urllib.parse import urlparse
 
 BASE_SHEET_URL = 'https://www.slottr.com/sheets/18257847'
 
@@ -97,6 +98,10 @@ print(f"Found time range: '{time_range}' for our desired date")
 # Step 4: Make a request to fill the slot
 #
 
+post_url = f'{BASE_SHEET_URL}/ranges/{time_range}/entry_results'
+
+parsed_post_url = urlparse(post_url)
+
 post_data = {
     csrf_param: csrf_token,
     'result': {
@@ -107,8 +112,27 @@ post_data = {
     }
 }
 
+post_headers = {
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+    'Accept-Encoding': 'gzip, deflate, br',
+    'Accept-Language': 'en-US,en;q=0.9',    
+    'Cache-Control': 'max-age=0',
+    'Connection': 'keep-alive',
+#    'Content-Length': '242',
+    'Content-Type': 'application/x-www-form-urlencoded',
+    'Host': parsed_post_url.hostname,
+    'Origin': f'origin: {parsed_post_url.scheme}://{parsed_post_url.hostname}',
+    'Referer': f'{post_url}/new',
+    'Sec-Fetch-Dest': 'document',
+    'Sec-Fetch-Mode': 'navigate',
+    'Sec-Fetch-Site': 'same-origin',
+    'Sec-Fetch-User': '?1',
+    'Upgrade-Insecure-Requests': '1',
+    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36'
+}
+
 try:
-    response = requests.post(f'{BASE_SHEET_URL}/ranges/{time_range}/entry_results', data=post_data)
+    response = requests.post(post_url, data=post_data, headers=post_headers)
 
     response.raise_for_status()
 
