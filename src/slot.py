@@ -1,13 +1,10 @@
 #!/usr/bin/env python3
 
-import requests
-from requests.exceptions import HTTPError
-import logging
-from bs4 import BeautifulSoup
 import datetime
 import sys
 import configparser
 import os
+import slottr
 
 CONFIG_FILE = '../config/config.ini'
 
@@ -41,111 +38,36 @@ desired_signup_month = config.getint(environment, 'desired-month')
 desired_signup_day = config.getint(environment, 'desired-day')
 desired_signup_hour = config.getint(environment, 'desired-hour')
 
-#
-# Now get info from Slottr
-#
+desired_datetime = datetime.datetime(desired_signup_year, desired_signup_month, desired_signup_day, desired_signup_hour)
 
-session = requests.Session()
+desired_signup_info = slottr.SignupInfo(desired_signup_name, desired_signup_email, desired_signup_phone, desired_signup_condo, desired_signup_building, desired_signup_notes)
 
 #
-# Step 1: Download the initial list of available slots
+# Try and get our slot
 #
 
-soup = None
+slottr_instance = slottr.Slottr(desired_slottr_url)
 
 try:
-    response = session.get(desired_slottr_url)
+    slottr_instance.try_to_get_slot(desired_datetime, desired_signup_info)
 
-    response.raise_for_status()
-
-    response.encoding = 'utf-8'
-
-    soup = BeautifulSoup(response.text, 'html.parser')
-
-except HTTPError as http_err:
-    print(f'Encountered HTTP error trying to retrieve initial list of available slots: {http_err}')
+except slottr.HttpException as http_exception:
+    print(f'Encountered HTTP exception talking to Slottr: {http_exception.message}')
     sys.exit(1)
 
-#
-# Step 2: Get CSRF token
-#
-
-csrf_param = None
-csrf_token = None
-
-try:
-    csrf_param = soup.find('meta', attrs={'name': 'csrf-param'}).get('content')
-    csrf_token = soup.find('meta', attrs={'name': 'csrf-token'}).get('content')
-
-except AttributeError as attr_err:
-    print(f'Could not find CSRF info in initial sheet')
+except slottr.PageFormatException as page_format_exception:
+    print(f'Slottr page in unexpected format. Unable to proceed. {page_format_exception.message}')
     sys.exit(1)
 
-print(f'Found CSRF param name "{csrf_param}" and token "{csrf_token}"')
-
-#
-# Step 3: Get the time range for the desired slot
-#
-
-time_range = None
-
-desired_date = datetime.datetime(desired_signup_year, desired_signup_month, desired_signup_day, desired_signup_hour)
-
-desired_date_formatted = f'{desired_date: %a, %b %d @ %I:00 %p}'.lstrip().replace(" 0", "  ") # The hour needs to be padded with a space (e.g. " 9:00" and not "09:00"). https://stackoverflow.com/questions/9525944/python-datetime-formatting-without-zero-padding
-
-print(f'Trying to find desired date "{desired_date_formatted}"')
-
-try:
-    """
-    This HTML snippit looks like the following below.
-    We're going to find our date, and then move around the tree until we can extract the URL portion that corresponds to this slot
-
-    <div class="slot" id="sheet_">
-        <div class="info">
-        <div class="what">11AM</div>
-        <div class="when">Wed, Dec 30 @ 11:00 AM</div>
-    </div>
-    <div class="who">
-        <a class="signup" href="/sheets/18257847/ranges/17588-1100/entry_results/new">Slot me in</a><br/></div>
-    </div>
-    """
-
-    desired_date_node = soup.find(text=desired_date_formatted)
-    time_range = desired_date_node.parent.parent.parent.find('a').get('href').split('/')[4]
-
-except AttributeError as attr_err:
-    print(f'Could not find a signup for date "{desired_date_formatted}"')
+except slottr.DesiredDatetimeFullException as desired_datetime_full_exception:
+    print(f'Desired datetime is full: {desired_datetime_full_exception.message}')
     sys.exit(1)
 
-print(f"Found time range: '{time_range}' for our desired date")
+except slottr.DesiredDatetimeDoesNotExistException as desired_datetime_does_not_exist_exception:
+    print(f'Desired datetime does not exist yet: {desired_datetime_does_not_exist_exception.message}')
 
-#
-# Step 4: Make a request to fill the slot
-#
-
-post_url = f'{desired_slottr_url}/entries/{time_range}/results'
-
-post_data = {
-    csrf_param: csrf_token,
-    'result[name]': desired_signup_name,
-    'result[emails][]': desired_signup_email,
-    'result[phone]': desired_signup_phone,
-    'result[questions][117]': desired_signup_condo,
-    'result[questions][122]': desired_signup_building,
-    'result[notes]': desired_signup_notes
-}
-
-try:
-    response = session.post(post_url, data=post_data)
-
-    response.raise_for_status()
-
-    response.encoding = 'utf-8'
-
-    print(f'Received HTTP response {response.status_code}')
-
-except HTTPError as http_err:
-    print(f'Encountered HTTP error trying to post request for a slot: {http_err}')
+except Exception as e:
+    print(f'Encounted unexpected exception: {e}')
     sys.exit(1)
 
 print('Success!')
