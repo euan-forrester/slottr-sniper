@@ -28,6 +28,8 @@ config = configparser.ConfigParser()
 config.read(CONFIG_FILE)
 
 desired_slottr_url = config.get(environment, 'slottr-url')
+slottr_post_url_type = config.getint(environment, 'slottr-post-url-type')
+
 desired_signup_name = config.get(environment, 'signup-name')
 desired_signup_email = config.get(environment, 'signup-email')
 desired_signup_phone = config.get(environment, 'signup-phone')
@@ -86,7 +88,7 @@ if current_time < time_begin_checking:
 # Try and get our slot
 #
 
-slottr_instance = slottr.Slottr(desired_slottr_url)
+slottr_instance = slottr.Slottr(desired_slottr_url, slottr_post_url_type)
 
 current_time = get_current_time()
 

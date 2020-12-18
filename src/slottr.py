@@ -35,8 +35,9 @@ class DesiredDatetimeFullException(Exception):
 
 class Slottr:
 
-    def __init__(self, sheet_url):
+    def __init__(self, sheet_url, post_url_type):
         self.sheet_url = sheet_url
+        self.post_url_type = post_url_type
 
     def try_to_get_slot(self, desired_datetime, signup_info):
 
@@ -117,7 +118,11 @@ class Slottr:
         # Step 4: Make a request to fill the slot
         #
 
-        post_url = f'{self.sheet_url}/entries/{time_range}/results'
+        # No idea why some Slottr sheets have a POST url in one format or the other, but some have one and some have the other
+        if self.post_url_type == 1:
+            post_url = f'{self.sheet_url}/entries/{time_range}/results'
+        elif self.post_url_type == 2:
+            post_url = f'{self.sheet_url}/ranges/{time_range}/entry_results'
 
         post_data = {
             csrf_param: csrf_token,

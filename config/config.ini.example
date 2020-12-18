@@ -3,6 +3,8 @@
 [dev]
 
 slottr-url=https://www.slottr.com/sheets/1234567
+slottr-post-url-type=1
+
 signup-name=Dev name
 signup-email=a@b.com
 signup-phone=1234567890
@@ -25,6 +27,8 @@ desired-hour=11
 [prod]
 
 slottr-url=https://www.slottr.com/sheets/1234567
+slottr-post-url-type=1
+
 signup-name=Prod name
 signup-email=a@b.com
 signup-phone=1234567890
