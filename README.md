@@ -1,4 +1,4 @@
-# slottr-signup
+# slottr-sniper
 Get the signup slots you want with Slottr
 
 During the pandemic, our building used Slottr to manage a signup list for the swimming pool and gym. It quickly turned into a competition between the residents to secure the most coveted times, with many residents camping out on the Slottr page before the new signup slots were released every day or two.
