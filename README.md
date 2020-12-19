@@ -5,6 +5,8 @@ During the pandemic, our building used Slottr to manage a signup list for the sw
 
 Rather than having to be chained to a computer every day competing for spots, I wrote a script to do it for me.
 
+### Config file
+
 To run, copy `config/config.ini.example` to `config/config.ini` and then fill in the `dev` and `prod` sections. Consider making your own signup page in Slottr and using `dev` mode to test the script first.
 
 - `slottr-url` = URL of the Slottr page you want to sign up on
@@ -29,6 +31,8 @@ To run, copy `config/config.ini.example` to `config/config.ini` and then fill in
 - `desired-day` = `1`-`31` The day for the slot you'd like to sign up
 - `desired-hour` = `0`-`23` The hour for the slot you'd like to sign up
 
+### Running the script
+
 To run in `dev` mode:
 ```
 ./book-pool.py
@@ -38,3 +42,9 @@ To run in `prod` mode:
 ```
 ENVIRONMENT=prod ./book-pool.py
 ```
+
+### Command line arguments
+
+- `-h`: Display help info
+- `-d`: Output DEBUG level logging (default is INFO)
+- `-c <path/to/file>`: Specify config file location (default is `config/config.ini`). Useful if you want to have > 1 instances running simultaneously looking for different dates if > 1 slots are due to open at the same time

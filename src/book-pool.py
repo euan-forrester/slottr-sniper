@@ -10,7 +10,7 @@ import slottr
 import logging
 import argparse
 
-CONFIG_FILE = '../config/config.ini'
+DEFAULT_CONFIG_FILE = '../config/config.ini'
 
 #
 # Read in commandline arguments
@@ -19,6 +19,7 @@ CONFIG_FILE = '../config/config.ini'
 parser = argparse.ArgumentParser(description="Get the signup slots you want with Slottr")
 
 parser.add_argument("-d", "--debug", action="store_true", dest="debug", default=False, help="Display debug information")
+parser.add_argument("-c", "--config-file", dest="config_file", type=str, help="Display debug information")
 
 args = parser.parse_args()
 
@@ -27,6 +28,10 @@ if args.debug:
     log_level = logging.DEBUG
 
 logging.basicConfig(format='%(asctime)s %(levelname)-8s %(message)s', level=log_level, datefmt='%Y-%m-%d %H:%M:%S')
+
+config_file = DEFAULT_CONFIG_FILE
+if args.config_file:
+    config_file = args.config_file
 
 #
 # Get our config
@@ -39,9 +44,11 @@ if 'ENVIRONMENT' in os.environ:
 
 logging.info(f'Running in {environment} mode')
 
+logging.info(f'Loading config file "{config_file}"')
+
 config = configparser.ConfigParser()
 
-config.read(CONFIG_FILE)
+config.read(config_file)
 
 desired_slottr_url = config.get(environment, 'slottr-url')
 slottr_post_url_type = config.getint(environment, 'slottr-post-url-type')
@@ -90,6 +97,7 @@ while current_time > time_finish_checking:
     time_finish_checking = time_finish_checking + timedelta(days=1)
 
 logging.info(f'Current time is {current_time}')
+logging.info(f'Trying to book desired slot {desired_datetime}')
 logging.info(f'Time slots are added is {time_slots_added}')
 logging.info(f'Time to begin checking: {time_begin_checking}')
 logging.info(f'Time to finish checking: {time_finish_checking}')
