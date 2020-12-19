@@ -7,10 +7,26 @@ import sys
 import configparser
 import os
 import slottr
+import logging
+import argparse
 
 CONFIG_FILE = '../config/config.ini'
 
-# TODO: Make sure we're not trying to signup more than 48 hours in advance. Is this actually checked?
+#
+# Read in commandline arguments
+#
+
+parser = argparse.ArgumentParser(description="Get the signup slots you want with Slottr")
+
+parser.add_argument("-d", "--debug", action="store_true", dest="debug", default=False, help="Display debug information")
+
+args = parser.parse_args()
+
+log_level = logging.INFO
+if args.debug:
+    log_level = logging.DEBUG
+
+logging.basicConfig(format='%(asctime)s %(levelname)-8s %(message)s', level=log_level, datefmt='%Y-%m-%d %H:%M:%S')
 
 #
 # Get our config
@@ -21,7 +37,7 @@ environment = 'dev'
 if 'ENVIRONMENT' in os.environ:
     environment = os.environ.get('ENVIRONMENT')
 
-print(f'Running in {environment} mode')
+logging.info(f'Running in {environment} mode')
 
 config = configparser.ConfigParser()
 
@@ -73,15 +89,15 @@ while current_time > time_finish_checking:
     time_begin_checking = time_begin_checking + timedelta(days=1)
     time_finish_checking = time_finish_checking + timedelta(days=1)
 
-print(f'Current time is {current_time}')
-print(f'Time slots are added is {time_slots_added}')
-print(f'Time to begin checking: {time_begin_checking}')
-print(f'Time to finish checking: {time_finish_checking}')
+logging.info(f'Current time is {current_time}')
+logging.info(f'Time slots are added is {time_slots_added}')
+logging.info(f'Time to begin checking: {time_begin_checking}')
+logging.info(f'Time to finish checking: {time_finish_checking}')
 
 if current_time < time_begin_checking:
     how_long_to_wait_until_begin_checking_seconds = (time_begin_checking - current_time).seconds
 
-    print(f'Sleeping for {how_long_to_wait_until_begin_checking_seconds} seconds until we can begin checking')
+    logging.info(f'Sleeping for {how_long_to_wait_until_begin_checking_seconds} seconds until we can begin checking')
     time.sleep(how_long_to_wait_until_begin_checking_seconds)
 
 #
@@ -97,30 +113,30 @@ while current_time < time_finish_checking:
     try:
         slottr_instance.try_to_get_slot(desired_datetime, desired_signup_info)
 
-        print('Success!')
+        logging.info('Success!')
         sys.exit(0)
 
     except slottr.HttpException as http_exception:
-        print(f'Encountered HTTP exception talking to Slottr: {http_exception.message}')
+        logging.error(f'Encountered HTTP exception talking to Slottr: {http_exception.message}')
         sys.exit(1)
 
     except slottr.PageFormatException as page_format_exception:
-        print(f'Slottr page in unexpected format. Unable to proceed. {page_format_exception.message}')
+        logging.error(f'Slottr page in unexpected format. Unable to proceed. {page_format_exception.message}')
         sys.exit(1)
 
     except slottr.DesiredDatetimeFullException as desired_datetime_full_exception:
-        print(f'Desired datetime is full: {desired_datetime_full_exception.message}')
+        logging.info(f'Desired datetime is full: {desired_datetime_full_exception.message}')
         sys.exit(1)
 
     except slottr.DesiredDatetimeDoesNotExistException as desired_datetime_does_not_exist_exception:
-        print(f'Desired datetime does not exist yet: {desired_datetime_does_not_exist_exception.message}')
-        print(f'Sleeping for {seconds_between_attempts} seconds')
+        logging.info(f'Desired datetime does not exist yet: {desired_datetime_does_not_exist_exception.message}')
+        logging.info(f'Sleeping for {seconds_between_attempts} seconds')
         time.sleep(seconds_between_attempts)
 
     except Exception as e:
-        print(f'Encounted unexpected exception: {e}')
+        logging.error(f'Encounted unexpected exception: {e}')
         sys.exit(1)
 
     current_time = get_current_time()
 
-print(f'Current time is {current_time} which is past our time to finish checking of {time_finish_checking}. Aborting.')
+logging.info(f'Current time is {current_time} which is past our time to finish checking of {time_finish_checking}. Aborting.')
