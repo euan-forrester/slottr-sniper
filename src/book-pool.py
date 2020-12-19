@@ -18,8 +18,8 @@ DEFAULT_CONFIG_FILE = '../config/config.ini'
 
 parser = argparse.ArgumentParser(description="Get the signup slots you want with Slottr")
 
-parser.add_argument("-d", "--debug", action="store_true", dest="debug", default=False, help="Display debug information")
-parser.add_argument("-c", "--config-file", dest="config_file", type=str, help="Display debug information")
+parser.add_argument("-d", "--debug", action="store_true", dest="debug", default=False, help="display debug information")
+parser.add_argument("-c", "--config-file", dest="config_file", type=str, help="specify config file location")
 
 args = parser.parse_args()
 
