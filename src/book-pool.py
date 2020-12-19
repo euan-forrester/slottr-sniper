@@ -26,7 +26,7 @@ log_level = logging.INFO
 if args.debug:
     log_level = logging.DEBUG
 
-logging.basicConfig(format='%(levelname)s: %(message)s', level=log_level)
+logging.basicConfig(format='%(asctime)s %(levelname)-8s %(message)s', level=log_level, datefmt='%Y-%m-%d %H:%M:%S')
 
 #
 # Get our config
