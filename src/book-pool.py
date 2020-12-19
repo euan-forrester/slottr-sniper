@@ -97,6 +97,7 @@ while current_time > time_finish_checking:
     time_finish_checking = time_finish_checking + timedelta(days=1)
 
 logging.info(f'Current time is {current_time}')
+logging.info(f'Trying to book desired slot {desired_datetime}')
 logging.info(f'Time slots are added is {time_slots_added}')
 logging.info(f'Time to begin checking: {time_begin_checking}')
 logging.info(f'Time to finish checking: {time_finish_checking}')
