@@ -3,6 +3,7 @@ from requests.exceptions import HTTPError
 import logging
 from bs4 import BeautifulSoup
 import datetime
+import logging
 
 class SignupInfo:
     def __init__(self, name, email, phone, condo, building, notes):
@@ -75,7 +76,7 @@ class Slottr:
         except AttributeError as attr_err:
             raise PageFormatException('Could not find CSRF info in initial sheet')
 
-        print(f'Found CSRF param name "{csrf_param}" and token "{csrf_token}"')
+        logging.debug(f'Found CSRF param name "{csrf_param}" and token "{csrf_token}"')
 
         #
         # Step 3: Get the time range for the desired slot
@@ -85,7 +86,7 @@ class Slottr:
 
         desired_datetime_formatted = f'{desired_datetime: %a, %b %d @ %I:00 %p}'.lstrip().replace(" 0", "  ") # The hour needs to be padded with a space (e.g. " 9:00" and not "09:00"). https://stackoverflow.com/questions/9525944/python-datetime-formatting-without-zero-padding
 
-        print(f'Trying to find desired date "{desired_datetime_formatted}"')
+        logging.debug(f'Trying to find desired date "{desired_datetime_formatted}"')
 
         """
         This HTML snippit looks like the following below.
@@ -112,7 +113,7 @@ class Slottr:
         except AttributeError as attr_err:
             raise DesiredDatetimeFullException(f'Could not find a signup link for date "{desired_datetime_formatted}". It must be full already.')
 
-        print(f"Found time range: '{time_range}' for our desired date")
+        logging.debug(f"Found time range: '{time_range}' for our desired date")
 
         #
         # Step 4: Make a request to fill the slot
@@ -141,7 +142,7 @@ class Slottr:
 
             response.encoding = 'utf-8'
 
-            print(f'Received HTTP response {response.status_code}')
+            logging.debug(f'Received HTTP response {response.status_code}')
 
         except HTTPError as http_err:
             raise HttpException(f'Encountered HTTP error trying to post request for a slot: {http_err}')
