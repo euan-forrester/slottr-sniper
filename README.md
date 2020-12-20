@@ -1,7 +1,7 @@
 # slottr-sniper
 Get the signup slots you want with Slottr
 
-![Slottr screen shot](https://github.com/euan-forrester/slottr-sniper/raw/readme/images/slottr-screen-shot.png "Slottr screen shot")
+![Slottr screen shot](https://github.com/euan-forrester/slottr-sniper/raw/master/images/slottr-screen-shot.png "Slottr screen shot")
 
 During the pandemic, our building used [Slottr](https://www.slottr.com) to manage a signup list for the swimming pool and gym. It quickly turned into a competition between the residents to secure the most coveted times, with many residents camping out on the Slottr page before the new signup slots were released every day or two.
 
