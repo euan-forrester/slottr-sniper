@@ -85,6 +85,15 @@ get_current_time = get_current_time_in_timezone(timezone_name)
 # Wait until we're the desired number of minutes before slots are going to be added
 #
 
+slottr_instance = slottr.Slottr(desired_slottr_url, slottr_post_url_type)
+
+try:
+    sheet_name = slottr_instance.get_sheet_name()
+
+except slottr.PageFormatException as page_format_exception:
+    logging.error(f'Slottr page in unexpected format. Unable to proceed. {page_format_exception.message}')
+    sys.exit(1)
+
 current_time = get_current_time()
 
 time_slots_added = current_time.replace(hour=time_slots_added_hour, minute=time_slots_added_minute, second=0, microsecond=0)
@@ -97,6 +106,7 @@ while current_time > time_finish_checking:
     time_finish_checking = time_finish_checking + timedelta(days=1)
 
 logging.info(f'Current time is {current_time}')
+logging.info(f'Trying to book on sheet "{sheet_name}"')
 logging.info(f'Trying to book desired slot {desired_datetime}')
 logging.info(f'Time slots are added is {time_slots_added}')
 logging.info(f'Time to begin checking: {time_begin_checking}')
@@ -111,8 +121,6 @@ if current_time < time_begin_checking:
 #
 # Try and get our slot
 #
-
-slottr_instance = slottr.Slottr(desired_slottr_url, slottr_post_url_type)
 
 current_time = get_current_time()
 

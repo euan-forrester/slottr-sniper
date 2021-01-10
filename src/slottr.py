@@ -40,13 +40,7 @@ class Slottr:
         self.sheet_url = sheet_url
         self.post_url_type = post_url_type
 
-    def try_to_get_slot(self, desired_datetime, signup_info):
-
-        session = requests.Session()
-
-        #
-        # Step 1: Download the initial list of available slots
-        #
+    def _get_sheet(self, session):
 
         soup = None
 
@@ -61,6 +55,34 @@ class Slottr:
 
         except HTTPError as http_err:
             raise HttpException(f'Encountered HTTP error trying to retrieve initial list of available slots: {http_err}')
+
+        return soup
+
+    def get_sheet_name(self):
+
+        session = requests.Session()
+
+        soup = self._get_sheet(session)
+
+        sheet_name = None
+
+        try:
+            sheet_name = soup.find('h1').string
+
+        except AttributeError as attr_err:
+            raise PageFormatException('Could not find title in initial sheet')
+
+        return sheet_name
+
+    def try_to_get_slot(self, desired_datetime, signup_info):
+
+        session = requests.Session()
+
+        #
+        # Step 1: Download the initial list of available slots
+        #
+
+        soup = self._get_sheet(session)
 
         #
         # Step 2: Get CSRF token
