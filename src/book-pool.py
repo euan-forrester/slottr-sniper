@@ -133,8 +133,11 @@ while current_time < time_finish_checking:
         sys.exit(0)
 
     except slottr.HttpException as http_exception:
-        logging.error(f'Encountered HTTP exception talking to Slottr: {http_exception.message}')
-        sys.exit(1)
+        logging.error(f'Encountered HTTP {http_exception.http_code} error talking to Slottr: {http_exception.message}')
+        if ((http_exception.http_code // 100) * 100) == 500:
+            logging.info('Internal server error, so continuing execution')
+        else:
+            sys.exit(1)
 
     except slottr.PageFormatException as page_format_exception:
         logging.error(f'Slottr page in unexpected format. Unable to proceed. {page_format_exception.message}')
