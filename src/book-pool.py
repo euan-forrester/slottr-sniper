@@ -90,6 +90,10 @@ slottr_instance = slottr.Slottr(desired_slottr_url, slottr_post_url_type)
 try:
     sheet_name = slottr_instance.get_sheet_name()
 
+# FIXME: We could encounter a 500 here, and should retry. It's less important to fix this right now because the operator
+# will see this message immediately upon running the program so they can retry manually. If we ever automate this futher
+# then it will need to be fixed with retries
+
 except slottr.PageFormatException as page_format_exception:
     logging.error(f'Slottr page in unexpected format. Unable to proceed. {page_format_exception.message}')
     sys.exit(1)
