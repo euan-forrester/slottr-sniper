@@ -16,8 +16,9 @@ class SignupInfo:
 
 # Raised when encountering an error communicating with Slottr
 class HttpException(Exception):
-    def __init__(self, message):
+    def __init__(self, message, http_code):
         self.message = message
+        self.http_code = http_code
 
 # Raised when unable to find expected static content within the Slottr page
 class PageFormatException(Exception):
@@ -54,7 +55,7 @@ class Slottr:
             soup = BeautifulSoup(response.text, 'html.parser')
 
         except HTTPError as http_err:
-            raise HttpException(f'Encountered HTTP error trying to retrieve initial list of available slots: {http_err}')
+            raise HttpException(f'Encountered HTTP error trying to retrieve initial list of available slots: {http_err}', response.status_code) from http_err
 
         return soup
 
@@ -70,7 +71,7 @@ class Slottr:
             sheet_name = soup.find('h1').string
 
         except AttributeError as attr_err:
-            raise PageFormatException('Could not find title in initial sheet')
+            raise PageFormatException('Could not find title in initial sheet') from attr_err
 
         return sheet_name
 
@@ -96,7 +97,7 @@ class Slottr:
             csrf_token = soup.find('meta', attrs={'name': 'csrf-token'}).get('content')
 
         except AttributeError as attr_err:
-            raise PageFormatException('Could not find CSRF info in initial sheet')
+            raise PageFormatException('Could not find CSRF info in initial sheet') from attr_err
 
         logging.debug(f'Found CSRF param name "{csrf_param}" and token "{csrf_token}"')
 
@@ -133,7 +134,7 @@ class Slottr:
             time_range = desired_date_node.parent.parent.parent.find('a').get('href').split('/')[4]
 
         except AttributeError as attr_err:
-            raise DesiredDatetimeFullException(f'Could not find a signup link for date "{desired_datetime_formatted}". It must be full already.')
+            raise DesiredDatetimeFullException(f'Could not find a signup link for date "{desired_datetime_formatted}". It must be full already.') from attr_err
 
         logging.debug(f"Found time range: '{time_range}' for our desired date")
 
@@ -167,4 +168,4 @@ class Slottr:
             logging.debug(f'Received HTTP response {response.status_code}')
 
         except HTTPError as http_err:
-            raise HttpException(f'Encountered HTTP error trying to post request for a slot: {http_err}')
+            raise HttpException(f'Encountered HTTP error trying to post request for a slot: {http_err}', response.status_code) from http_err
