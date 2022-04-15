@@ -45,6 +45,12 @@ To run in `prod` mode:
 ENVIRONMENT=prod ./book-pool.py
 ```
 
+On a Mac, you can use `caffeinate` to prevent the computer from going to sleep while it's waiting for the signup time:
+
+`caffeinate ENVIRONMENT=prod ./book-pool.py`
+
+On a Windows computer, it's trickier: there are programs you can download that will simulate mouse movement to prevent the computer from going to sleep
+
 ### Command line arguments
 
 - `-h`: Display help info
